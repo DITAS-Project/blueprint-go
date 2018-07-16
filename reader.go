@@ -38,5 +38,7 @@ func ReadBlueprint(path string) BlueprintType {
 		}
 	}
 
+	log.Info(blueprint)
+
 	return blueprint
 }
