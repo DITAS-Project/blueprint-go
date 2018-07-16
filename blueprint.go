@@ -16,47 +16,53 @@ limitations under the License.
 
 package blueprint
 
+type LeafType struct {
+	Id          *string  `json:"id"`
+	Description string   `json:"description"`
+	Weight      int      `json:"weight"`
+	Attributes  []string `json:"attributes"`
+}
+
 type TreeStructureType struct {
 	Type     *string             `json:"type"`
 	Children []TreeStructureType `json:"children"`
-	Leaves   []string            `json:"leaves"`
+	Leaves   []LeafType          `json:"leaves"`
+}
+
+type GoalTreeType struct {
+	DataUtility TreeStructureType `json:"dataUtility`
+	Security    TreeStructureType `json:"security`
+	Privacy     TreeStructureType `json:"privacy`
+}
+
+type AbstractPropertiesMethodType struct {
+	MethodId  *string      `json:"method_id"`
+	GoalTrees GoalTreeType `json:"goalTrees"`
 }
 
 type MetricPropertyType struct {
-	Name    string   `json:"name"`
-	Unit    *string  `json:"unit"`
-	Minimum *float64 `json:"minimum"`
-	Maximum *float64 `json:"maximum"`
-	Value   *float64 `json:"value"`
-}
-
-type MetricType struct {
-	ID         *string              `json:"id"`
-	Type       *string              `json:"type"`
-	Properties []MetricPropertyType `json:"properties"`
-}
-
-type GoalType struct {
-	ID      *string      `json:"id"`
-	Metrics []MetricType `json:"metrics"`
+	Unit    string       `json:"unit"`
+	Minimum *float64     `json:"minimum"`
+	Maximum *float64     `json:"maximum"`
+	Value   *interface{} `json:"value"`
 }
 
 type ConstraintType struct {
-	Goals         []GoalType        `json:"goals"`
-	TreeStructure TreeStructureType `json:"treeStructure"`
+	ID          *string                       `json:"id"`
+	Description string                        `json:"description"`
+	Type        string                        `json:"type"`
+	Properties  map[string]MetricPropertyType `json:"properties"`
 }
 
-type ConstraintsType struct {
-	DataUtility ConstraintType `json:"dataUtility"`
+type DataManagementAttributesType struct {
+	DataUtility []ConstraintType `json:"dataUtility"`
+	Security    []ConstraintType `json:"security"`
+	Privacy     []ConstraintType `json:"privacy"`
 }
 
-type MethodType struct {
-	Name        *string         `json:"name"`
-	Constraints ConstraintsType `json:"constraints"`
-}
-
-type MethodListType struct {
-	Methods []MethodType `json:"methods"`
+type DataManagementMethodType struct {
+	MethodId   *string                      `json:"method_id"`
+	Attributes DataManagementAttributesType `json:"attributes"`
 }
 
 type OverviewType struct {
@@ -68,7 +74,7 @@ type InternalStructureType struct {
 }
 
 type BlueprintType struct {
-	InternalStructure  InternalStructureType `json:"INTERNAL_STRUCTURE"`
-	DataManagement     MethodListType        `json:"DATA_MANAGEMENT"`
-	AbstractProperties MethodListType        `json:"ABSTRACT_PROPERTIES"`
+	InternalStructure  InternalStructureType          `json:"INTERNAL_STRUCTURE"`
+	DataManagement     []DataManagementMethodType     `json:"DATA_MANAGEMENT"`
+	AbstractProperties []AbstractPropertiesMethodType `json:"ABSTRACT_PROPERTIES"`
 }

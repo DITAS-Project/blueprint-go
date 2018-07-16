@@ -24,21 +24,33 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func checkMethodList(t *testing.T, methodList MethodListType, name string) {
+func checkConstraints(t *testing.T, name string, constraints []ConstraintType) {
 
-	if len(methodList.Methods) == 0 {
-		t.Fatalf("No methods found in %s section", name)
+}
+
+func checkDataManagementAttributes(t *testing.T, attributes DataManagementAttributesType) {
+	checkConstraints(t, "Data Utility", attributes.DataUtility)
+	checkConstraints(t, "Security", attributes.Security)
+	checkConstraints(t, "Privacy", attributes.Privacy)
+}
+
+func checkDataManagement(t *testing.T, methodList []DataManagementMethodType) {
+
+	if len(methodList) == 0 {
+		t.Fatalf("No methods found in section Data Management")
 	}
 
-	if *methodList.Methods[0].Name != "patient-details" {
-		t.Fatalf("Unexpected name for method in %s. Found %s", name, *methodList.Methods[0].Name)
+	for _, method := range methodList {
+		if method.MethodId == nil {
+			t.Fatalf("Found method in data management without a method id")
+		}
+		checkDataManagementAttributes(t, method.Attributes)
 	}
 
 }
 
 func TestReader(t *testing.T) {
-	blueprint := ReadBlueprint("resources/vdc_blueprint_example_1.json")
+	blueprint := ReadBlueprint("resources/concrete_blueprint_doctor.json")
 
-	checkMethodList(t, blueprint.DataManagement, "Data Management")
-	checkMethodList(t, blueprint.AbstractProperties, "Abstract Properties")
+	checkDataManagement(t, blueprint.DataManagement)
 }
