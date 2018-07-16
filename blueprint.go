@@ -16,6 +16,10 @@ limitations under the License.
 
 package blueprint
 
+import (
+	"github.com/go-openapi/spec"
+)
+
 type LeafType struct {
 	Id          *string  `json:"id"`
 	Description string   `json:"description"`
@@ -77,4 +81,5 @@ type BlueprintType struct {
 	InternalStructure  InternalStructureType          `json:"INTERNAL_STRUCTURE"`
 	DataManagement     []DataManagementMethodType     `json:"DATA_MANAGEMENT"`
 	AbstractProperties []AbstractPropertiesMethodType `json:"ABSTRACT_PROPERTIES"`
+	API                spec.Swagger                   `json:"EXPOSED_API"`
 }
