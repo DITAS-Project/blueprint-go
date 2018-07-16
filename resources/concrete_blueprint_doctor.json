@@ -520,7 +520,7 @@
                             "id": "serviceAvailable",
                             "description": "Service available",
                             "weight": 1,
-                            "attributes": ["availability_99"]
+                            "attributes": ["availability_999999"]
                         }, {
                             "id": "fastDataProcess",
                             "description": "Fast data process",
@@ -567,7 +567,7 @@
                             "id": "serviceAvailable",
                             "description": "Service available",
                             "weight": 1,
-                            "attributes": ["availability_99"]
+                            "attributes": ["availability_999999"]
                         }, {
                             "id": "fastDataProcess",
                             "description": "Fast data process",
@@ -615,7 +615,7 @@
                             "id": "serviceAvailable",
                             "description": "Service available",
                             "weight": 1,
-                            "attributes": ["availability_99"]
+                            "attributes": ["availability_999999"]
                         }, {
                             "id": "fastDataProcess",
                             "description": "Fast data process",

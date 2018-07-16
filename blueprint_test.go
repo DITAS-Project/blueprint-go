@@ -24,33 +24,73 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func checkConstraints(t *testing.T, name string, constraints []ConstraintType) {
-
-}
-
-func checkDataManagementAttributes(t *testing.T, attributes DataManagementAttributesType) {
-	checkConstraints(t, "Data Utility", attributes.DataUtility)
-	checkConstraints(t, "Security", attributes.Security)
-	checkConstraints(t, "Privacy", attributes.Privacy)
-}
-
-func checkDataManagement(t *testing.T, methodList []DataManagementMethodType) {
-
-	if len(methodList) == 0 {
-		t.Fatalf("No methods found in section Data Management")
-	}
-
-	for _, method := range methodList {
-		if method.MethodId == nil {
-			t.Fatalf("Found method in data management without a method id")
+func findAttribute(attr string, constraints []ConstraintType) bool {
+	for _, constraint := range constraints {
+		if *constraint.ID == attr {
+			return true
 		}
-		checkDataManagementAttributes(t, method.Attributes)
+	}
+	return false
+}
+
+func verifyTree(t *testing.T, tree TreeStructureType, constraints []ConstraintType) {
+
+	if len(tree.Children) == 0 && len(tree.Leaves) == 0 {
+		t.Fatalf("Invalid tree without leaves or children")
 	}
 
+	if tree.Type == nil {
+		t.Fatalf("Invalid tree without type")
+	}
+
+	for _, child := range tree.Children {
+		verifyTree(t, child, constraints)
+	}
+
+	for _, leaf := range tree.Leaves {
+		for _, attr := range leaf.Attributes {
+			if !findAttribute(attr, constraints) {
+				t.Fatalf("Can't find attribute %s in list of constraints", attr)
+			}
+		}
+	}
+}
+
+func verifyConstraints(t *testing.T, property AbstractPropertiesMethodType, method DataManagementMethodType) {
+	verifyTree(t, property.GoalTrees.DataUtility, method.Attributes.DataUtility)
+}
+
+func findMethod(methodId string, methods []DataManagementMethodType) *DataManagementMethodType {
+	for _, method := range methods {
+		if *method.MethodId == methodId {
+			return &method
+		}
+	}
+	return nil
+}
+
+func checkRules(t *testing.T, methods []DataManagementMethodType, abstractProperties []AbstractPropertiesMethodType) {
+	if len(abstractProperties) == 0 {
+		t.Fatalf("List of abstract properties is empty")
+	}
+
+	for _, property := range abstractProperties {
+		if property.MethodId == nil {
+			t.Fatalf("Found abstract property with empty method id")
+		}
+		method := findMethod(*property.MethodId, methods)
+
+		if method == nil {
+			t.Fatalf("Can't find method information of %s", *property.MethodId)
+		}
+
+		verifyConstraints(t, property, *method)
+	}
 }
 
 func TestReader(t *testing.T) {
+
 	blueprint := ReadBlueprint("resources/concrete_blueprint_doctor.json")
 
-	checkDataManagement(t, blueprint.DataManagement)
+	checkRules(t, blueprint.DataManagement, blueprint.AbstractProperties)
 }
