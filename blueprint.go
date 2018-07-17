@@ -68,13 +68,24 @@ type DataManagementMethodType struct {
 	MethodId   *string                      `json:"method_id"`
 	Attributes DataManagementAttributesType `json:"attributes"`
 }
-
+type MethodTagType struct {
+	ID   string   `json:"method_id"`
+	Tags []string `json:"tags"`
+}
 type OverviewType struct {
-	Name *string `json:"Name"`
+	Name *string         `json:"Name"`
+	Tags []MethodTagType `json:"tags"`
+}
+
+type DataSourceType struct {
+	ID         *string                `json:"id"`
+	Type       *string                `json:"type"`
+	Parameters map[string]interface{} `json:"parameters"`
 }
 
 type InternalStructureType struct {
-	Overview OverviewType `json:"Overview"`
+	Overview    OverviewType     `json:"Overview"`
+	DataSources []DataSourceType `json:"Data_Sources"`
 }
 
 type BlueprintType struct {

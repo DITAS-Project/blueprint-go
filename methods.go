@@ -6,26 +6,64 @@ import (
 
 type ExtendedMethods struct {
 	Properties AbstractPropertiesMethodType
+	Method     DataManagementMethodType
 	Path       string
-	Method     string
+	HTTPMethod string
+	Tags       []string
+}
+
+type extendedOps struct {
+	Ops    spec.Operation
+	Path   string
+	Method string
 }
 
 func (b BlueprintType) GetMethodMap() map[string]ExtendedMethods {
-	type extendedOps struct {
-		Ops    spec.Operation
-		Path   string
-		Method string
+	//get all Swagger Operations form Blueprint
+	ops := assembleOperationsMap(b)
+
+	//get all AbstractProperties form Blueprint
+	properties := assemblePropertiesMap(b)
+
+	//get all Methods form Blueprint
+	methods := assembleMethodMap(b)
+
+	//get all method tags
+	tags := assembleTagMap(b)
+
+	//create aggergatged map
+	results := make(map[string]ExtendedMethods)
+
+	for k, v := range properties {
+		exOps := ops[k]
+		result := ExtendedMethods{
+			Properties: v,
+			Path:       exOps.Path,
+			HTTPMethod: exOps.Method,
+		}
+
+		if val, ok := methods[k]; ok {
+			result.Method = val
+		}
+
+		if val, ok := tags[k]; ok {
+			result.Tags = val
+		}
+
+		results[k] = result
 	}
 
-	var ops map[string]extendedOps
+	return results
+}
 
-	ops = make(map[string]extendedOps)
+func assembleOperationsMap(b BlueprintType) map[string]extendedOps {
+	ops := make(map[string]extendedOps)
 
 	addToOps := func(method string, path string, ops *spec.Operation, data map[string]extendedOps) {
 		data[ops.ID] = extendedOps{Ops: *ops, Path: path, Method: method}
 	}
 
-	//TODO: nil check
+	//Thats some ugly code :P but thats what worked
 	if b.API.Paths != nil {
 		for k, v := range b.API.Paths.Paths {
 			if v.Get != nil {
@@ -52,9 +90,26 @@ func (b BlueprintType) GetMethodMap() map[string]ExtendedMethods {
 		}
 	}
 
-	methods := make(map[string]AbstractPropertiesMethodType)
+	return ops
+}
+
+func assemblePropertiesMap(b BlueprintType) map[string]AbstractPropertiesMethodType {
+	properties := make(map[string]AbstractPropertiesMethodType)
 
 	for _, v := range b.AbstractProperties {
+		if v.MethodId == nil {
+			continue
+		}
+
+		properties[*v.MethodId] = v
+	}
+	return properties
+}
+
+func assembleMethodMap(b BlueprintType) map[string]DataManagementMethodType {
+	methods := make(map[string]DataManagementMethodType)
+
+	for _, v := range b.DataManagement {
 		if v.MethodId == nil {
 			continue
 		}
@@ -62,16 +117,15 @@ func (b BlueprintType) GetMethodMap() map[string]ExtendedMethods {
 		methods[*v.MethodId] = v
 	}
 
-	result := make(map[string]ExtendedMethods)
+	return methods
+}
 
-	for k, v := range methods {
-		exOps := ops[k]
-		result[k] = ExtendedMethods{
-			Properties: v,
-			Path:       exOps.Path,
-			Method:     exOps.Method,
-		}
+func assembleTagMap(b BlueprintType) map[string][]string {
+	tags := make(map[string][]string)
+
+	for _, t := range b.InternalStructure.Overview.Tags {
+		tags[t.ID] = t.Tags
 	}
 
-	return result
+	return tags
 }
