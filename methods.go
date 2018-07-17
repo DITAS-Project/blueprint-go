@@ -12,7 +12,7 @@ type ExtendedMethods struct {
 	Tags       []string
 }
 
-type extendedOps struct {
+type ExtendedOps struct {
 	Ops    spec.Operation
 	Path   string
 	Method string
@@ -20,7 +20,7 @@ type extendedOps struct {
 
 func (b BlueprintType) GetMethodMap() map[string]ExtendedMethods {
 	//get all Swagger Operations form Blueprint
-	ops := assembleOperationsMap(b)
+	ops := AssembleOperationsMap(b)
 
 	//get all AbstractProperties form Blueprint
 	properties := assemblePropertiesMap(b)
@@ -56,11 +56,11 @@ func (b BlueprintType) GetMethodMap() map[string]ExtendedMethods {
 	return results
 }
 
-func assembleOperationsMap(b BlueprintType) map[string]extendedOps {
-	ops := make(map[string]extendedOps)
+func AssembleOperationsMap(b BlueprintType) map[string]ExtendedOps {
+	ops := make(map[string]ExtendedOps)
 
-	addToOps := func(method string, path string, ops *spec.Operation, data map[string]extendedOps) {
-		data[ops.ID] = extendedOps{Ops: *ops, Path: path, Method: method}
+	addToOps := func(method string, path string, ops *spec.Operation, data map[string]ExtendedOps) {
+		data[ops.ID] = ExtendedOps{Ops: *ops, Path: path, Method: method}
 	}
 
 	//Thats some ugly code :P but thats what worked
