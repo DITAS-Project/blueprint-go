@@ -90,7 +90,11 @@ func checkRules(t *testing.T, methods []DataManagementMethodType, abstractProper
 
 func TestReader(t *testing.T) {
 
-	blueprint := ReadBlueprint("resources/concrete_blueprint_doctor.json")
+	blueprint, err := ReadBlueprint("resources/concrete_blueprint_doctor.json")
+
+	if err != nil {
+		t.Fatalf("could not read the test blueprint: %+v", err)
+	}
 
 	checkRules(t, blueprint.DataManagement, blueprint.AbstractProperties)
 }

@@ -24,19 +24,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ReadBlueprint(path string) BlueprintType {
+func ReadBlueprint(path string) (*BlueprintType, error) {
 	var blueprint BlueprintType
 
 	raw, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println(err.Error())
 		log.Errorf("Error reading blueprint from %s: %s", path, err.Error())
+		return nil, err
 	} else {
 		err = json.Unmarshal(raw, &blueprint)
 		if err != nil {
 			log.Errorf("Error reading blueprint: %s", err.Error())
+			return nil, err
 		}
 	}
 
-	return blueprint
+	return &blueprint, nil
 }
