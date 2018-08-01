@@ -20,6 +20,35 @@ import (
 	"github.com/go-openapi/spec"
 )
 
+type ResourceType struct {
+	Name            string `json:"name"`
+	Type            string `json:"type"`
+	CPUs            string `json:"cpus"`
+	RAM             string `json:"ram"`
+	Disk            string `json:"disk"`
+	GenerateSSHKeys bool   `json:"generate_ssh_keys"`
+	SSHKeysID       string `json:"ssh_keys_id"`
+	Role            string `json:"role"`
+	BaseImage       string `json:"baseimage"`
+	OS              string `json:"os"`
+}
+type InfrastructureType struct {
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Type        string         `json:"type"`
+	Online      bool           `json:"on-line"`
+	APIEndpoint string         `json:"api_endpoint"`
+	APIType     string         `json:"api_type"`
+	KeypairID   string         `json:"keypair_id"`
+	Resources   []ResourceType `json:"resources"`
+}
+
+type CookbookAppendix struct {
+	Name           string               `json:"name"`
+	Description    string               `json:"description"`
+	Infrastructure []InfrastructureType `json:"infrastructure"`
+}
+
 type LeafType struct {
 	Id          *string  `json:"id"`
 	Description string   `json:"description"`
@@ -93,4 +122,5 @@ type BlueprintType struct {
 	DataManagement     []DataManagementMethodType     `json:"DATA_MANAGEMENT"`
 	AbstractProperties []AbstractPropertiesMethodType `json:"ABSTRACT_PROPERTIES"`
 	API                spec.Swagger                   `json:"EXPOSED_API"`
+	CookbookAppendix   CookbookAppendix               `json:"COOKBOOK_APPENDIX"`
 }

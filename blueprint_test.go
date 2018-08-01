@@ -88,6 +88,57 @@ func checkRules(t *testing.T, methods []DataManagementMethodType, abstractProper
 	}
 }
 
+func checkAppendix(t *testing.T, appendix CookbookAppendix) {
+	if appendix.Name == "" {
+		t.Errorf("Mandatory name not found in appendix")
+	}
+
+	if len(appendix.Infrastructure) == 0 {
+		t.Errorf("Empty infrastructure in blueprint")
+	}
+
+	for _, inf := range appendix.Infrastructure {
+		name := inf.Name
+		if inf.Type == "" {
+			t.Errorf("Can't find type in infrastructure %s", name)
+		}
+
+		if len(inf.Resources) == 0 {
+			t.Errorf("Resources empty for infrastructure %s", name)
+		}
+
+		for _, res := range inf.Resources {
+			resName := res.Name
+			if resName == "" {
+				t.Errorf("Can't find name for resource in infrastructure %s", name)
+			}
+
+			if res.Type == "" {
+				t.Errorf("Empty type for resource %s", resName)
+			}
+
+			if res.CPUs == "" {
+				t.Errorf("Empty CPUs value for resource %s", resName)
+			}
+
+			if res.BaseImage == "" {
+				t.Errorf("Empty base image for resource %s", resName)
+			}
+
+			if res.OS == "" {
+				t.Errorf("Empty OS for resource %s", resName)
+			}
+
+			if res.RAM == "" {
+				t.Errorf("Empty RAM for resource %s", resName)
+			}
+
+			if res.Role == "" {
+				t.Errorf("Empty role for resource %s", resName)
+			}
+		}
+	}
+}
 func TestReader(t *testing.T) {
 
 	blueprint, err := ReadBlueprint("resources/concrete_blueprint_doctor.json")
@@ -97,4 +148,5 @@ func TestReader(t *testing.T) {
 	}
 
 	checkRules(t, blueprint.DataManagement, blueprint.AbstractProperties)
+	checkAppendix(t, blueprint.CookbookAppendix)
 }
