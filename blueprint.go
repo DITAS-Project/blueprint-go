@@ -80,6 +80,21 @@ type MetricPropertyType struct {
 	Value   *interface{} `json:"value"`
 }
 
+//IsMinimumConstraint test if the MetricPropertyType has a minimum constraint
+func (m *MetricPropertyType) IsMinimumConstraint() bool {
+	return m.Minimum != nil
+}
+
+//IsMaximumConstraint test if the MetricPropertyType has a maximum constraint
+func (m *MetricPropertyType) IsMaximumConstraint() bool {
+	return m.Maximum != nil
+}
+
+//IsEqualityConstraint test if the MetricPropertyType has only a value and no min or max constraints
+func (m *MetricPropertyType) IsEqualityConstraint() bool {
+	return m.Value != nil && m.Maximum == nil && m.Minimum == nil
+}
+
 type ConstraintType struct {
 	ID          *string                       `json:"id"`
 	Description string                        `json:"description"`
