@@ -31,6 +31,7 @@ type ResourceType struct {
 	Role            string `json:"role"`
 	BaseImage       string `json:"baseimage"`
 	OS              string `json:"os"`
+	IP              string `json:"ip,omitempty"`
 }
 type InfrastructureType struct {
 	Name        string         `json:"name"`
