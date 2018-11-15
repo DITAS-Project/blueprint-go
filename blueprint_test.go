@@ -117,19 +117,15 @@ func checkAppendix(t *testing.T, appendix CookbookAppendix) {
 				t.Errorf("Empty type for resource %s", resName)
 			}
 
-			if res.CPUs == "" {
+			if res.CPU == 0 {
 				t.Errorf("Empty CPUs value for resource %s", resName)
 			}
 
-			if res.BaseImage == "" {
+			if res.ImageId == "" {
 				t.Errorf("Empty base image for resource %s", resName)
 			}
 
-			if res.OS == "" {
-				t.Errorf("Empty OS for resource %s", resName)
-			}
-
-			if res.RAM == "" {
+			if res.RAM == 0 {
 				t.Errorf("Empty RAM for resource %s", resName)
 			}
 

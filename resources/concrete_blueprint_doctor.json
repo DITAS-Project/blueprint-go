@@ -654,40 +654,54 @@
         }
     ],
     "COOKBOOK_APPENDIX": {
-        "name" : "Deployment1",
-        "description" : "Test deployment in CloudSigma",
-        "infrastructure" : [{
-            "name":"CloudSigma deployment",
-            "description":"Deployment in CloudSigma",
-            "type":"cloud",
-            "on-line":true,
-            "api_endpoint":"api url",
-            "api_type":"cloudsigma",
-            "keypair_id":"keypair_uuid",
-            "resources":[{  
-                "name":"master",
-                "type":"vm",
-                "cpus":"2000",
-                "ram":"4096",
-                "disk":"10000000",
-                "generate_ssh_keys":false,
-                "ssh_keys_id":"uuid",
-                "role":"master",
-                "baseimage":"16.04 DITAS",
-                "os": "Ubuntu"
-                },{  
-                    "name":"slave",
-                    "type":"vm",
-                    "cpus":"2000",
-                    "ram":"4096",
-                    "disk":"10000000",
-                    "generate_ssh_keys":false,
-                    "ssh_keys_id":"uuid",
-                    "role":"slave",
-                    "baseimage":"16.04 DITAS",
-                    "os": "Ubuntu"
-                    }]
-                }]
+        "name": "Deployment1",
+        "description": "Test deployment in CloudSigma",
+        "infrastructure": [
+            {
+                "name": "cloudsigma-deployment",
+                "description": "Deployment in CloudSigma",
+                "type": "cloud",
+                "on-line": true,
+                "provider" : {
+                	"api_endpoint": "api url",
+                	"api_type": "cloudsigma",
+                	"keypair_id": "keypair_uuid"
+                },
+                "resources": [
+                    {
+                        "name": "master",
+                        "instance_type": "cpu=4000,000000,ram=4096",
+                        "type": "vm",
+                        "cpu": 4000,
+                        "ram": 4096,
+                        "disk": 40960,
+                        "generate_ssh_keys": false,
+                        "ssh_keys_id": "uuid",
+                        "role": "master",
+                        "image_id": "a2a67f55-c775-4871-808d-53136e31d2f0",
+                        "drives": [
+                        	{
+                        		"name": "data",
+                        		"type": "SDD",
+                        		"size": 10240
+                        	}
+                        	]
+                    },
+                    {
+                        "name": "slave",
+                        "instance_type": "cpu=2000,000000,ram=4096",
+                        "type": "vm",
+                        "cpu": 2000,
+                        "ram": 4096,
+                        "disk": 40960,
+                        "generate_ssh_keys": false,
+                        "ssh_keys_id": "uuid",
+                        "role": "slave",
+                        "image_id": "a2a67f55-c775-4871-808d-53136e31d2f0"
+                    }
+                ]
+            }
+        ]
     },
     "EXPOSED_API": {
         "openapi": "3.0.1",
