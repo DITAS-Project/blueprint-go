@@ -78,16 +78,39 @@ type GoalTreeType struct {
 	Privacy     TreeStructureType `json:"privacy`
 }
 
+//AbstractPropertiesMethodType is defines a goal tree for a method
+// swagger:model
 type AbstractPropertiesMethodType struct {
-	MethodId  *string      `json:"method_id"`
+
+	// The method identifier this goals apply to
+	// required: true
+	MethodId *string `json:"method_id"`
+
+	// The goal tree for this method
+	// required: true
 	GoalTrees GoalTreeType `json:"goalTrees"`
 }
 
+//ConstraintType is the definition of a constraint threshold.
+// Either maximum, minimum or value is required.
+// swagger:model
 type MetricPropertyType struct {
-	Unit    string       `json:"unit"`
-	Minimum *float64     `json:"minimum"`
-	Maximum *float64     `json:"maximum"`
-	Value   *interface{} `json:"value"`
+	// The units in which this property is measured
+	// required: true
+	// example: MB/s
+	Unit string `json:"unit"`
+
+	// The minimum value for the threshold
+	// required: false
+	Minimum *float64 `json:"minimum"`
+
+	// The maximum value for the threshold
+	// required: false
+	Maximum *float64 `json:"maximum"`
+
+	// The value this property must maintain
+	// required: false
+	Value *interface{} `json:"value"`
 }
 
 //IsMinimumConstraint test if the MetricPropertyType has a minimum constraint
@@ -105,35 +128,99 @@ func (m *MetricPropertyType) IsEqualityConstraint() bool {
 	return m.Value != nil && m.Maximum == nil && m.Minimum == nil
 }
 
+//ConstraintType is the definition of a QoS constraint
+// swagger:model
 type ConstraintType struct {
-	ID          *string                       `json:"id"`
-	Description string                        `json:"description"`
-	Type        string                        `json:"type"`
-	Properties  map[string]MetricPropertyType `json:"properties"`
+
+	// A unique identifier for the constraint
+	// required: true
+	ID *string `json:"id"`
+
+	// An optional description for the constraint
+	// required: false
+	Description string `json:"description"`
+
+	// The type of the constraint
+	// required: true
+	// example: Accuracy
+	Type string `json:"type"`
+
+	// The set of properties thresholds associated to this constraints
+	// required: true
+	// example: "accuracy": { "minimum": 0.9, "unit": "none" }
+	Properties map[string]MetricPropertyType `json:"properties"`
 }
 
+//DataManagementAttributesType contains the data managements values associated to a method
+// swagger:model
 type DataManagementAttributesType struct {
+
+	// The constraints associated to data utility
+	// required: false
 	DataUtility []ConstraintType `json:"dataUtility"`
-	Security    []ConstraintType `json:"security"`
-	Privacy     []ConstraintType `json:"privacy"`
+
+	// The constraints associated to security
+	// required: false
+	Security []ConstraintType `json:"security"`
+
+	// The constraints associated to privacy
+	// requiered: false
+	Privacy []ConstraintType `json:"privacy"`
 }
 
+//DataManagementMethodType contains the data management attributes associated to a method
+// swagger:model
 type DataManagementMethodType struct {
-	MethodId   *string                      `json:"method_id"`
+
+	// The unique method id this attributes apply to
+	// required: true
+	MethodId *string `json:"method_id"`
+
+	// The attributes to apply to this method
+	// required: true
 	Attributes DataManagementAttributesType `json:"attributes"`
 }
+
+//MethodTagType is a structure to define tags per methos
+// swagger:model
 type MethodTagType struct {
-	ID   string   `json:"method_id"`
+
+	// The method identifier
+	// required: true
+	ID string `json:"method_id"`
+
+	// The list of tags to apply to the method
+	// required: false
 	Tags []string `json:"tags"`
 }
+
+//OverviewType are general descriptive properties of the blueprint
+// swagger:model
 type OverviewType struct {
-	Name *string         `json:"Name"`
+
+	// A unique name for the blueprint. It will be identified by this property.
+	// required: true
+	Name *string `json:"Name"`
+
+	// A list of tags to apply to this blueprint
+	// required: false
 	Tags []MethodTagType `json:"tags"`
 }
 
+//DataSourceType is a datasource definition
+// swagger:model
 type DataSourceType struct {
-	ID         *string                `json:"id"`
-	Type       *string                `json:"type"`
+
+	// The unique identifier of the datasource
+	// required: true
+	ID *string `json:"id"`
+
+	// The type of the datasource
+	// required: true
+	Type *string `json:"type"`
+
+	// A map of parameters relevant for the datasource
+	// required: false
 	Parameters map[string]interface{} `json:"parameters"`
 }
 
