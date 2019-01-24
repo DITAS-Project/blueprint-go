@@ -21,7 +21,7 @@ import (
 )
 
 // Drive contains the information of a data drive
-// swagger:mode
+// swagger:model
 type Drive struct {
 	// Name of the image to use. Most of the times, it will be available as /dev/disk/by-id/${name} value in the VM
 	// required: true
@@ -39,7 +39,7 @@ type Drive struct {
 }
 
 // ResourceType represents a resource such as a virtual machine
-// swagger:mode
+// swagger:model
 type ResourceType struct {
 	// Suffix for the hostname. The real hostname will be formed of the infrastructure name + resource name
 	Name string `json:"name"`
@@ -78,7 +78,7 @@ type ResourceType struct {
 }
 
 // CloudProviderInfo contains information about a cloud or edge provider
-// swagger:mode
+// swagger:model
 type CloudProviderInfo struct {
 	// Endpoint to use for this infrastructure
 	APIEndpoint string `json:"api_endpoint"`
@@ -92,7 +92,7 @@ type CloudProviderInfo struct {
 }
 
 // InfrastructureType represents a cloud or edge site that's able to create resources such as virtual machines or volumes
-// swagger:mode
+// swagger:model
 type InfrastructureType struct {
 	// Unique name for the infrastructure
 	// required: true
@@ -118,7 +118,7 @@ type InfrastructureType struct {
 }
 
 // CookbookAppendix is the definition of the Cookbook Appendix section in the blueprint
-// swagger:mode
+// swagger:model
 type CookbookAppendix struct {
 	// Unique name of the deployment
 	// required: true
@@ -135,7 +135,7 @@ type CookbookAppendix struct {
 }
 
 // LeafType is a leaf in a tree data structure
-// swagger:mode
+// swagger:model
 type LeafType struct {
 	// Unique identifier for the leaf
 	// required: true
@@ -156,7 +156,7 @@ type LeafType struct {
 }
 
 // TreeStructureType is a tree structure with a root and subtrees or leaves
-// swagger:mode
+// swagger:model
 type TreeStructureType struct {
 
 	// The operation to apply to the subtree or leaves
