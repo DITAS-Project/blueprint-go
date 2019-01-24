@@ -20,65 +20,178 @@ import (
 	"github.com/go-openapi/spec"
 )
 
+// Drive contains the information of a data drive
+// swagger:mode
 type Drive struct {
-	Name string `json:"name"` //Name of the image to use. Most of the times, it will be available as /dev/disk/by-id/${name} value in the VM
-	Type string `json:"type"` //Type of the drive. It can be "SSD" or "HDD"
-	Size int64  `json:"size"` //Size of the disk in Mb
+	// Name of the image to use. Most of the times, it will be available as /dev/disk/by-id/${name} value in the VM
+	// required: true
+	Name string `json:"name"`
+
+	// Type of the drive. It can be "SSD" or "HDD"
+	// required: true
+	// pattern: SSD|HDD
+	// example: SSD
+	Type string `json:"type"`
+
+	// Size of the disk in MB
+	// required: true
+	Size int64 `json:"size"`
 }
 
+// ResourceType represents a resource such as a virtual machine
+// swagger:mode
 type ResourceType struct {
-	Name    string  `json:"name"`         //Suffix for the hostname. The real hostname will be formed of the infrastructure name + resource name
-	Type    string  `json:"type"`         //Type of the VM to create i.e. n1-small
-	CPU     int     `json:"cpu"`          //CPU speed in Mhz. Ignored if type is provided
-	Cores   int     `json:"cores"`        //Number of cores. Ignored if type is provided
-	RAM     int64   `json:"ram"`          //RAM quantity in Mb. Ignored if type is provided
-	Disk    int64   `json:"disk"`         //Boot disk size in Mb
-	Role    string  `json:"role"`         //Role that this VM plays. In case of a Kubernetes deployment at least one "master" is needed.
-	ImageId string  `json:"image_id"`     //Boot image ID to use
-	IP      string  `json:"ip,omitempty"` //IP to assign this VM. In case it's not specified, the first available one will be used.
-	Drives  []Drive `json:"drives"`       //List of data drives to attach to this VM
+	// Suffix for the hostname. The real hostname will be formed of the infrastructure name + resource name
+	Name string `json:"name"`
+
+	// Type of the VM to create
+	// example: n1-small
+	Type string `json:"type"`
+
+	// CPU speed in MHz. Ignored if type is provided
+	CPU int `json:"cpu"`
+
+	// Number of cores. Ignored if type is provided
+	Cores int `json:"cores"`
+
+	// RAM quantity in MB. Ignored if type is provided
+	RAM int64 `json:"ram"`
+
+	// Boot disk size in MB
+	Disk int64 `json:"disk"`
+
+	// Role that this VM plays. In case of a Kubernetes deployment at least one "master" is needed.
+	// required: true
+	// pattern: master|slave
+	// example: master
+	Role string `json:"role"`
+
+	// Boot image ID to use
+	// required: true
+	ImageId string `json:"image_id"`
+
+	// IP to assign this VM. In case it's not specified, the first available one will be used.
+	IP string `json:"ip,omitempty"`
+
+	// List of data drives to attach to this VM
+	Drives []Drive `json:"drives"`
 }
 
+// CloudProviderInfo contains information about a cloud or edge provider
+// swagger:mode
 type CloudProviderInfo struct {
-	APIEndpoint string `json:"api_endpoint"` //Endpoint to use for this infrastructure
-	APIType     string `json:"api_type"`     //Type of the infrastructure. i.e AWS, Cloudsigma, GCP or Edge
-	KeypairID   string `json:"keypair_id"`   //Keypair to use to log in to the infrastructure manager
+	// Endpoint to use for this infrastructure
+	APIEndpoint string `json:"api_endpoint"`
+
+	// Type of the infrastructure. i.e AWS, Cloudsigma, GCP or Edge
+	// example: AWS
+	APIType string `json:"api_type"`
+
+	// Keypair to use to log in to the infrastructure manager
+	KeypairID string `json:"keypair_id"`
 }
 
+// InfrastructureType represents a cloud or edge site that's able to create resources such as virtual machines or volumes
+// swagger:mode
 type InfrastructureType struct {
-	Name        string            `json:"name"`        //Unique name for the infrastructure
-	Description string            `json:"description"` //Optional description for the infrastructure
-	Type        string            `json:"type"`        //Type of the infrastructure: Cloud or Edge
-	Provider    CloudProviderInfo `json:"provider"`    //Provider information
-	Resources   []ResourceType    `json:"resources"`   //List of resources to deploy
+	// Unique name for the infrastructure
+	// required: true
+	// unique: true
+	Name string `json:"name"`
+
+	// Optional description for the infrastructure
+	Description string `json:"description"`
+
+	// Type of the infrastructure
+	// required: true
+	// pattern: Cloud|Edge
+	// example: Cloud
+	Type string `json:"type"`
+
+	// Provider information
+	// required: true
+	Provider CloudProviderInfo `json:"provider"`
+
+	// List of resources to deploy
+	// required: true
+	Resources []ResourceType `json:"resources"`
 }
 
+// CookbookAppendix is the definition of the Cookbook Appendix section in the blueprint
+// swagger:mode
 type CookbookAppendix struct {
-	Name           string               `json:"name"`
-	Description    string               `json:"description"`
+	// Unique name of the deployment
+	// required: true
+	// unique: true
+	Name string `json:"name"`
+
+	// An optional description for the deployment
+	// required: false
+	Description string `json:"description"`
+
+	// A list of infrastructures that should be initialized to deploy VDCs of this blueprint
+	// required: true
 	Infrastructure []InfrastructureType `json:"infrastructure"`
 }
 
+// LeafType is a leaf in a tree data structure
+// swagger:mode
 type LeafType struct {
-	Id          *string  `json:"id"`
-	Description string   `json:"description"`
-	Weight      int      `json:"weight"`
-	Attributes  []string `json:"attributes"`
+	// Unique identifier for the leaf
+	// required: true
+	// unique: true
+	Id *string `json:"id"`
+
+	// An optional description for the leaf
+	// required: false
+	Description string `json:"description"`
+
+	// The weight in the resolution of the constraint
+	// requiered: true
+	Weight int `json:"weight"`
+
+	// The list of attributes defined in the data management section to match. All of them must comply.
+	// requiered: true
+	Attributes []string `json:"attributes"`
 }
 
+// TreeStructureType is a tree structure with a root and subtrees or leaves
+// swagger:mode
 type TreeStructureType struct {
-	Type     *string             `json:"type"`
+
+	// The operation to apply to the subtree or leaves
+	// required: true
+	// pattern: AND|OR
+	// example: AND
+	Type *string `json:"type"`
+
+	// The subtrees pending from this node
+	// required: false
 	Children []TreeStructureType `json:"children"`
-	Leaves   []LeafType          `json:"leaves"`
+
+	// The leaves pending from this node
+	// required: false
+	Leaves []LeafType `json:"leaves"`
 }
 
+// GoalTreeType defines a goal tree
+// swagger:model
 type GoalTreeType struct {
+
+	// Goal tree for data utility properties
+	// required: false
 	DataUtility TreeStructureType `json:"dataUtility`
-	Security    TreeStructureType `json:"security`
-	Privacy     TreeStructureType `json:"privacy`
+
+	// Goal tree for security properties
+	// required: false
+	Security TreeStructureType `json:"security`
+
+	// Goal tree for privacy properties
+	// required: false
+	Privacy TreeStructureType `json:"privacy`
 }
 
-//AbstractPropertiesMethodType is defines a goal tree for a method
+// AbstractPropertiesMethodType defines a goal tree for a method
 // swagger:model
 type AbstractPropertiesMethodType struct {
 
@@ -91,7 +204,7 @@ type AbstractPropertiesMethodType struct {
 	GoalTrees GoalTreeType `json:"goalTrees"`
 }
 
-//ConstraintType is the definition of a constraint threshold.
+// ConstraintType is the definition of a constraint threshold.
 // Either maximum, minimum or value is required.
 // swagger:model
 type MetricPropertyType struct {
@@ -113,22 +226,22 @@ type MetricPropertyType struct {
 	Value *interface{} `json:"value"`
 }
 
-//IsMinimumConstraint test if the MetricPropertyType has a minimum constraint
+// IsMinimumConstraint test if the MetricPropertyType has a minimum constraint
 func (m *MetricPropertyType) IsMinimumConstraint() bool {
 	return m.Minimum != nil
 }
 
-//IsMaximumConstraint test if the MetricPropertyType has a maximum constraint
+// IsMaximumConstraint test if the MetricPropertyType has a maximum constraint
 func (m *MetricPropertyType) IsMaximumConstraint() bool {
 	return m.Maximum != nil
 }
 
-//IsEqualityConstraint test if the MetricPropertyType has only a value and no min or max constraints
+// IsEqualityConstraint test if the MetricPropertyType has only a value and no min or max constraints
 func (m *MetricPropertyType) IsEqualityConstraint() bool {
 	return m.Value != nil && m.Maximum == nil && m.Minimum == nil
 }
 
-//ConstraintType is the definition of a QoS constraint
+// ConstraintType is the definition of a QoS constraint
 // swagger:model
 type ConstraintType struct {
 
@@ -151,7 +264,7 @@ type ConstraintType struct {
 	Properties map[string]MetricPropertyType `json:"properties"`
 }
 
-//DataManagementAttributesType contains the data managements values associated to a method
+// DataManagementAttributesType contains the data managements values associated to a method
 // swagger:model
 type DataManagementAttributesType struct {
 
@@ -168,7 +281,7 @@ type DataManagementAttributesType struct {
 	Privacy []ConstraintType `json:"privacy"`
 }
 
-//DataManagementMethodType contains the data management attributes associated to a method
+// DataManagementMethodType contains the data management attributes associated to a method
 // swagger:model
 type DataManagementMethodType struct {
 
@@ -181,7 +294,7 @@ type DataManagementMethodType struct {
 	Attributes DataManagementAttributesType `json:"attributes"`
 }
 
-//MethodTagType is a structure to define tags per methos
+// MethodTagType is a structure to define tags per methos
 // swagger:model
 type MethodTagType struct {
 
@@ -194,7 +307,7 @@ type MethodTagType struct {
 	Tags []string `json:"tags"`
 }
 
-//OverviewType are general descriptive properties of the blueprint
+// OverviewType are general descriptive properties of the blueprint
 // swagger:model
 type OverviewType struct {
 
@@ -207,7 +320,7 @@ type OverviewType struct {
 	Tags []MethodTagType `json:"tags"`
 }
 
-//DataSourceType is a datasource definition
+// DataSourceType is a datasource definition
 // swagger:model
 type DataSourceType struct {
 
@@ -224,7 +337,7 @@ type DataSourceType struct {
 	Parameters map[string]interface{} `json:"parameters"`
 }
 
-//InternalStructureType is the serialization of a DITAS concrete blueprint
+// InternalStructureType is the serialization of a DITAS concrete blueprint
 // swagger:model
 type InternalStructureType struct {
 
@@ -237,7 +350,7 @@ type InternalStructureType struct {
 	DataSources []DataSourceType `json:"Data_Sources"`
 }
 
-//BlueprintType is the serialization of a DITAS concrete blueprint
+// BlueprintType is the serialization of a DITAS concrete blueprint
 // swagger:model
 type BlueprintType struct {
 	// The internal structure section
