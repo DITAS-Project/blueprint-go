@@ -137,15 +137,39 @@ type DataSourceType struct {
 	Parameters map[string]interface{} `json:"parameters"`
 }
 
+//InternalStructureType is the serialization of a DITAS concrete blueprint
+// swagger:model
 type InternalStructureType struct {
-	Overview    OverviewType     `json:"Overview"`
+
+	// The overview section
+	// required: true
+	Overview OverviewType `json:"Overview"`
+
+	// The datasources description
+	// required: true
 	DataSources []DataSourceType `json:"Data_Sources"`
 }
 
+//BlueprintType is the serialization of a DITAS concrete blueprint
+// swagger:model
 type BlueprintType struct {
-	InternalStructure  InternalStructureType          `json:"INTERNAL_STRUCTURE"`
-	DataManagement     []DataManagementMethodType     `json:"DATA_MANAGEMENT"`
+	// The internal structure section
+	// required: true
+	InternalStructure InternalStructureType `json:"INTERNAL_STRUCTURE"`
+
+	// The data management section
+	// required: true
+	DataManagement []DataManagementMethodType `json:"DATA_MANAGEMENT"`
+
+	// The abstract properties section
+	// required: true
 	AbstractProperties []AbstractPropertiesMethodType `json:"ABSTRACT_PROPERTIES"`
-	API                spec.Swagger                   `json:"EXPOSED_API"`
-	CookbookAppendix   CookbookAppendix               `json:"COOKBOOK_APPENDIX"`
+
+	// The blueprint API description section
+	// required: true
+	API spec.Swagger `json:"EXPOSED_API"`
+
+	// The cookbook appendix section containing the available resources
+	// required: true
+	CookbookAppendix CookbookAppendix `json:"COOKBOOK_APPENDIX"`
 }
