@@ -180,15 +180,15 @@ type GoalTreeType struct {
 
 	// Goal tree for data utility properties
 	// required: false
-	DataUtility TreeStructureType `json:"dataUtility`
+	DataUtility TreeStructureType `json:"dataUtility"`
 
 	// Goal tree for security properties
 	// required: false
-	Security TreeStructureType `json:"security`
+	Security TreeStructureType `json:"security"`
 
 	// Goal tree for privacy properties
 	// required: false
-	Privacy TreeStructureType `json:"privacy`
+	Privacy TreeStructureType `json:"privacy"`
 }
 
 // AbstractPropertiesMethodType defines a goal tree for a method
@@ -204,7 +204,7 @@ type AbstractPropertiesMethodType struct {
 	GoalTrees GoalTreeType `json:"goalTrees"`
 }
 
-// ConstraintType is the definition of a constraint threshold.
+// MetricPropertyType is the definition of a constraint threshold.
 // Either maximum, minimum or value is required.
 // swagger:model
 type MetricPropertyType struct {
@@ -337,6 +337,19 @@ type DataSourceType struct {
 	Parameters map[string]interface{} `json:"parameters"`
 }
 
+// ImageInfo is the information about a Docker image that needs to be deployed by the Deployment Engine
+// swagger:model
+type ImageInfo struct {
+	// ID of the image
+	// required: true
+	// unique: true
+	ID string `json:"Id"`
+
+	// Image name to deploy. It must point to a valid image in a repository in the format [group]/<image>:[release]
+	// required: true
+	Image string `json:"Image"`
+}
+
 // InternalStructureType is the serialization of a DITAS concrete blueprint
 // swagger:model
 type InternalStructureType struct {
@@ -344,6 +357,12 @@ type InternalStructureType struct {
 	// The overview section
 	// required: true
 	Overview OverviewType `json:"Overview"`
+
+	// Docker images that must be deployed in the DAL
+	DALImages []ImageInfo `json:"DAL_Images"`
+
+	// Docker images that must be deployed in the VDC
+	VDCImages []ImageInfo `json:"VDC_Images"`
 
 	// The datasources description
 	// required: true
