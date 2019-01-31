@@ -135,7 +135,7 @@ type CookbookAppendix struct {
 
 	// A list of infrastructures that should be initialized to deploy VDCs of this blueprint
 	// required: true
-	Infrastructure []InfrastructureType `json:"infrastructure"`
+	Infrastructures []InfrastructureType `json:"infrastructures"`
 }
 
 // LeafType is a leaf in a tree data structure
