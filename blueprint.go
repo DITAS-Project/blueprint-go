@@ -87,8 +87,8 @@ type CloudProviderInfo struct {
 	// example: AWS
 	APIType string `json:"api_type"`
 
-	// Keypair to use to log in to the infrastructure manager
-	KeypairID string `json:"keypair_id"`
+	// Authentication information to use on the provider.
+	Authentication interface{} `json:"authentication"`
 }
 
 // InfrastructureType represents a cloud or edge site that's able to create resources such as virtual machines or volumes
@@ -98,6 +98,10 @@ type InfrastructureType struct {
 	// required: true
 	// unique: true
 	Name string `json:"name"`
+
+	// Owner of the infrastructure
+	// pattern: DataOwner|DataConsumer|
+	Owner string `json:"owner"`
 
 	// Optional description for the infrastructure
 	Description string `json:"description"`
@@ -337,18 +341,9 @@ type DataSourceType struct {
 	Parameters map[string]interface{} `json:"parameters"`
 }
 
-// ImageInfo is the information about a Docker image that needs to be deployed by the Deployment Engine
+// ImageSet represents a set of docker images whose key is an identifier and value is a docker image name in the standard format [group]/<image_name>:[release]
 // swagger:model
-type ImageInfo struct {
-	// ID of the image
-	// required: true
-	// unique: true
-	ID string `json:"Id"`
-
-	// Image name to deploy. It must point to a valid image in a repository in the format [group]/<image>:[release]
-	// required: true
-	Image string `json:"Image"`
-}
+type ImageSet map[string]string
 
 // InternalStructureType is the serialization of a DITAS concrete blueprint
 // swagger:model
@@ -359,10 +354,10 @@ type InternalStructureType struct {
 	Overview OverviewType `json:"Overview"`
 
 	// Docker images that must be deployed in the DAL
-	DALImages []ImageInfo `json:"DAL_Images"`
+	DALImages ImageSet `json:"DAL_Images"`
 
 	// Docker images that must be deployed in the VDC
-	VDCImages []ImageInfo `json:"VDC_Images"`
+	VDCImages ImageSet `json:"VDC_Images"`
 
 	// The datasources description
 	// required: true
