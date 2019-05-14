@@ -386,7 +386,7 @@ type InternalStructureType struct {
 	Overview OverviewType `json:"Overview"`
 
 	// Docker images that must be deployed in the DAL indexed by DAL name. It will be used to compose the service name and the DNS entry that other images in the cluster can access to.
-	DALImages map[string]ImageSet `json:"DAL_Images"`
+	DALImages ImageSet `json:"DAL_Images"`
 
 	// Docker images that must be deployed in the VDC
 	VDCImages ImageSet `json:"VDC_Images"`
