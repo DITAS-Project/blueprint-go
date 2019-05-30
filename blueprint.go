@@ -20,6 +20,10 @@ import (
 	"github.com/go-openapi/spec"
 )
 
+// ExtraPropertiesType represents extra properties to define for resources, infrastructures or deployments. This properties are provisioner or deployment specific and they should document them when they expect any.
+// swagger:model
+type ExtraPropertiesType map[string]string
+
 // Drive contains the information of a data drive
 // swagger:model
 type Drive struct {
@@ -92,12 +96,6 @@ type CloudProviderInfo struct {
 	// Type of the infrastructure. i.e AWS, Cloudsigma, GCP or Edge
 	// example: AWS
 	APIType string `json:"api_type"`
-
-	//Secret identifier to use to log in to the infrastructure manager.
-	SecretID string `json:"secret_id"`
-
-	//Credentials to access the cloud provider. Either this or secret_id is mandatory.
-	Credentials map[string]string `json:"credentials"`
 }
 
 // InfrastructureType represents a cloud or edge site that's able to create resources such as virtual machines or volumes
@@ -136,21 +134,107 @@ type InfrastructureType struct {
 	ExtraProperties map[string]string `json:"extra_properties"`
 }
 
+// DriveInfo is the information of a drive that has been instantiated
+// swagger:model
+type DriveInfo struct {
+	// Name of the data drive
+	// unique:true
+	// required:true
+	Name string `json:"name"`
+	// Size of the disk in bytes
+	// required:true
+	Size int64 `json:"size"`
+}
+
+// NodeInfo is the information of a virtual machine that has been instantiated or a physical one that was pre-existing
+// swagger:model
+type NodeInfo struct {
+	// Hostname of the node.
+	// requiered:true
+	// unique:true
+	Hostname string `json:"hostname"`
+	// Role of the node. Master or slave in case of Kubernetes.
+	// example:master
+	Role string `json:"role"`
+	// CPU speed in Mhz.
+	CPU int `json:"cpu"`
+	// Number of cores.
+	Cores int `json:"cores"`
+	// RAM quantity in bytes.
+	RAM int64 `json:"ram"`
+	// IP assigned to this node.
+	// required:true
+	// unique:true
+	IP string `json:"ip"`
+	// Size of the boot disk in bytes
+	// required:true
+	// unique:true
+	DriveSize int64 `json:"drive_size" bson:"drive_size"`
+	// Data drives information
+	DataDrives []DriveInfo `json:"data_drives" bson:"data_drives"`
+	// Extra properties to pass to the provider or the provisioner
+	ExtraProperties ExtraPropertiesType `json:"extra_properties"`
+}
+
+// VDCInfo contains information about related to a VDC running in a kubernetes cluster
+// swagger:model
+type VDCInfo struct {
+	Ports map[string]int
+}
+
+// InfrastructureDeploymentInfo contains information about a cluster of nodes that has been instantiated or were already existing.
+// swagger:model
+type InfrastructureDeploymentInfo struct {
+	// Unique infrastructure ID on the deployment
+	// required:true
+	// unique:true
+	ID string `json:"id"`
+	// Name of the infrastructure
+	Name string `json:"name"`
+	// Type of the infrastructure: cloud or edge
+	// pattern:cloud|edge
+	// required:true
+	Type string `json:"type"`
+	// Provider information
+	// required:true
+	Provider CloudProviderInfo `json:"provider"`
+	// Set of nodes in the infrastructure indexed by role
+	// required:true
+	Nodes map[string][]NodeInfo
+	// Status of the infrastructure
+	Status string `json:"status"`
+	// Configuration of VDCs running in the cluster, indexed by VDC identifier.
+	VDCs map[string]VDCInfo `json:"vdcs"`
+	// Set weather the VDM is running in this cluster or not
+	VDM bool
+	// Extra properties to pass to the provider or the provisioner
+	ExtraProperties ExtraPropertiesType `json:"extra_properties"`
+}
+
+// DeploymentInfo contains information of a deployment than may compromise several clusters
+// swagger:model
+type DeploymentInfo struct {
+	// Unique ID for the deployment
+	// required:true
+	// unique:true
+	ID string `json:"id" bson:"_id"`
+	// Name of the deployment
+	Name string `json:"name"`
+	// Lisf of infrastructures, each one representing a different cluster.
+	Infrastructures map[string]InfrastructureDeploymentInfo `json:"infrastructures"`
+	// Extra properties bound to the deployment
+	ExtraProperties ExtraPropertiesType `json:"extra_properties"`
+	// Global status of the deployment
+	Status string `json:"status"`
+}
+
 // CookbookAppendix is the definition of the Cookbook Appendix section in the blueprint
 // swagger:model
 type CookbookAppendix struct {
-	// Unique name of the deployment
+	// Information about the clusters that were deployed with this blueprint
 	// required: true
 	// unique: true
-	Name string `json:"name"`
-
-	// An optional description for the deployment
-	// required: false
-	Description string `json:"description"`
-
-	// A list of infrastructures that should be initialized to deploy VDCs of this blueprint
-	// required: true
-	Infrastructures []InfrastructureType `json:"infrastructures"`
+	Deployment DeploymentInfo `json:"Deployment"`
 }
 
 // LeafType is a leaf in a tree data structure

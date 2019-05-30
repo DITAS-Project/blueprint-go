@@ -654,54 +654,149 @@
         }
     ],
     "COOKBOOK_APPENDIX": {
-        "name": "Deployment1",
-        "description": "Test deployment in CloudSigma",
-        "infrastructure": [
-            {
-                "name": "cloudsigma-deployment",
-                "description": "Deployment in CloudSigma",
-                "type": "cloud",
-                "on-line": true,
-                "provider" : {
-                	"api_endpoint": "api url",
-                	"api_type": "cloudsigma",
-                	"keypair_id": "keypair_uuid"
-                },
-                "resources": [
-                    {
-                        "name": "master",
-                        "instance_type": "cpu=4000,000000,ram=4096",
-                        "type": "vm",
-                        "cpu": 4000,
-                        "ram": 4096,
-                        "disk": 40960,
-                        "generate_ssh_keys": false,
-                        "ssh_keys_id": "uuid",
-                        "role": "master",
-                        "image_id": "a2a67f55-c775-4871-808d-53136e31d2f0",
-                        "drives": [
-                        	{
-                        		"name": "data",
-                        		"type": "SDD",
-                        		"size": 10240
-                        	}
-                        	]
+        "Deployment": {
+            "_id" : "62dff4fe-750d-410f-bd90-439808abcf20",
+            "name" : "Computation blueprints for SPART MANUFACTURING plant",
+            "infrastructures" : {
+                "a1fcde75-d72d-4d7a-8efe-72feebcc13d2" : {
+                    "id" : "a1fcde75-d72d-4d7a-8efe-72feebcc13d2",
+                    "name" : "CloudSigma GVA deployment",
+                    "type" : "cloudsigma",
+                    "provider" : {
+                        "apiendpoint" : "https://gva.cloudsigma.com/api/2.0",
+                        "apitype" : "cloudsigma"
                     },
-                    {
-                        "name": "slave",
-                        "instance_type": "cpu=2000,000000,ram=4096",
-                        "type": "vm",
-                        "cpu": 2000,
-                        "ram": 4096,
-                        "disk": 40960,
-                        "generate_ssh_keys": false,
-                        "ssh_keys_id": "uuid",
-                        "role": "slave",
-                        "image_id": "a2a67f55-c775-4871-808d-53136e31d2f0"
+                    "nodes" : {
+                        "worker" : [ 
+                            {
+                                "hostname" : "cloudsigmagvadeployment-worker",
+                                "role" : "worker",
+                                "cpu": 4000,
+                                "cores": 2,
+                                "ram": 4096000000,
+                                "ip" : "31.171.240.133",
+                                "drive_size" : 42949672960,
+                                "data_drives" : [ 
+                                    {
+                                        "name" : "data-cloudsigmagvadeployment-slave-data_main",
+                                        "size" : 21474836480
+                                    }
+                                ],
+                                "extra_properties" : {
+                                    "cloudsigma_boot_drive_type" : "custom"
+                                }
+                            }
+                        ],
+                        "master" : [ 
+                            {
+                                "hostname" : "cloudsigmagvadeployment-master",
+                                "role" : "master",
+                                "cpu": 2000,
+                                "cores": 1,
+                                "ram": 2024000000,
+                                "ip" : "31.171.240.110",
+                                "drive_size" : 42949672960,
+                                "data_drives" : [ 
+                                    {
+                                        "name" : "data-cloudsigmagvadeployment-master-data_sec",
+                                        "size" : 5368709120
+                                    }, 
+                                    {
+                                        "name" : "data-cloudsigmagvadeployment-master-data_main",
+                                        "size" : 21474836480
+                                    }
+                                ],
+                                "extra_properties" : {
+                                    "cloudsigma_boot_drive_type" : "custom"
+                                }
+                            }
+                        ]
+                    },
+                    "status" : "running",
+                    "vdcs" : {
+                        "vdc-0" : {
+                            "ports" : {
+                                "153.92.30.56:5050/computation-vdc:latest" : 30002
+                            }
+                        }
+                    },
+                    "extra_properties" : {
+                        "ditas_git_installed" : "true",
+                        "ditas_glusterfs_client_installed" : "true",
+                        "k3s_curl_installed" : "true",
+                        "kubeadm_preinstalled_image" : "true",
+                        "ditas_default" : "true"
                     }
-                ]
-            }
-        ]
+                },
+                "0d625c8c-4db2-4d7e-be28-e3abedc7f8db" : {
+                    "id" : "0d625c8c-4db2-4d7e-be28-e3abedc7f8db",
+                    "name" : "CloudSigma FRA deployment",
+                    "type" : "cloudsigma",
+                    "provider" : {
+                        "apiendpoint" : "https://fra.cloudsigma.com/api/2.0",
+                        "apitype" : "cloudsigma"
+                    },
+                    "nodes" : {
+                        "worker" : [ 
+                            {
+                                "hostname" : "cloudsigmafradeployment-worker",
+                                "role" : "worker",
+                                "cpu": 2000,
+                                "cores": 1,
+                                "ram": 2024000000,
+                                "ip" : "85.204.97.196",
+                                "username" : "cloudsigma",
+                                "drive_size" : 42949672960,
+                                "data_drives" : [ 
+                                    {
+                                        "name" : "data-cloudsigmafradeployment-slave-data_main",
+                                        "size" : 21474836480
+                                    }
+                                ],
+                                "extraproperties" : {
+                                    "cloudsigma_boot_drive_type" : "custom"
+                                }
+                            }
+                        ],
+                        "master" : [ 
+                            {
+                                "hostname" : "cloudsigmafradeployment-master",
+                                "role" : "master",
+                                "cpu": 4000,
+                                "cores": 2,
+                                "ram": 4096000000,
+                                "ip" : "85.204.96.36",
+                                "drive_size" : 42949672960,
+                                "data_drives" : [ 
+                                    {
+                                        "name" : "data-cloudsigmafradeployment-master-data_main",
+                                        "size" : 21474836480
+                                    }, 
+                                    {
+                                        "name" : "data-cloudsigmafradeployment-master-data_sec",
+                                        "size" : 5368709120
+                                    }
+                                ],
+                                "extra_properties" : {
+                                    "cloudsigma_boot_drive_type" : "custom"
+                                }
+                            }
+                        ]
+                    },
+                    "status" : "running",
+                    "VDM" : true,
+                    "extra_properties" : {
+                        "kubeadm_preinstalled_image" : "true",
+                        "ditas_default" : "true",
+                        "ditas_git_installed" : "true",
+                        "ditas_glusterfs_client_installed" : "true",
+                        "k3s_curl_installed" : "true"
+                    }
+                }
+            },
+            "extra_properties" : null,
+            "status" : "starting"
+        }
     },
     "EXPOSED_API": {
         "openapi": "3.0.1",

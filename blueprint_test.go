@@ -88,52 +88,72 @@ func checkRules(t *testing.T, methods []DataManagementMethodType, abstractProper
 	}
 }
 
-func checkAppendix(t *testing.T, appendix CookbookAppendix) {
-	if appendix.Name == "" {
+func checkDeployment(t *testing.T, deployment DeploymentInfo) {
+	if deployment.Name == "" {
 		t.Errorf("Mandatory name not found in appendix")
 	}
 
-	if len(appendix.Infrastructure) == 0 {
+	if len(deployment.Infrastructures) == 0 {
 		t.Errorf("Empty infrastructure in blueprint")
 	}
 
-	for _, inf := range appendix.Infrastructure {
+	for _, inf := range deployment.Infrastructures {
 		name := inf.Name
 		if inf.Type == "" {
 			t.Errorf("Can't find type in infrastructure %s", name)
 		}
 
-		if len(inf.Resources) == 0 {
+		if len(inf.Nodes) == 0 {
 			t.Errorf("Resources empty for infrastructure %s", name)
 		}
 
-		for _, res := range inf.Resources {
-			resName := res.Name
-			if resName == "" {
-				t.Errorf("Can't find name for resource in infrastructure %s", name)
+		for role, nodes := range inf.Nodes {
+			if role != "master" && role != "worker" {
+				t.Errorf("Invalid role found: %s. Only master and worker are supported", role)
 			}
+			for _, res := range nodes {
+				resName := res.Hostname
+				if resName == "" {
+					t.Errorf("Can't find host name name for resource in infrastructure %s", name)
+				}
 
-			if res.Type == "" {
-				t.Errorf("Empty type for resource %s", resName)
+				if res.CPU == 0 {
+					t.Errorf("Empty CPUs value for resource %s", resName)
+				}
+
+				if res.RAM == 0 {
+					t.Errorf("Empty RAM for resource %s", resName)
+				}
+
+				if res.Role == "" {
+					t.Errorf("Empty role for resource %s", resName)
+				}
+
+				if res.Cores == 0 {
+					t.Errorf("Empty number of cores for resource %s", resName)
+				}
+
+				if res.IP == "" {
+					t.Errorf("Empty IP for resource %s", resName)
+				}
+
+				if res.DriveSize == 0 {
+					t.Errorf("Empty boot drive size for resource %s", resName)
+				}
 			}
-
-			if res.CPU == 0 {
-				t.Errorf("Empty CPUs value for resource %s", resName)
-			}
-
-			if res.ImageId == "" {
-				t.Errorf("Empty base image for resource %s", resName)
-			}
-
-			if res.RAM == 0 {
-				t.Errorf("Empty RAM for resource %s", resName)
-			}
-
-			if res.Role == "" {
-				t.Errorf("Empty role for resource %s", resName)
+		}
+		if inf.VDCs != nil && len(inf.VDCs) > 0 {
+			for vdcID, vdc := range inf.VDCs {
+				if vdc.Ports == nil || len(vdc.Ports) == 0 {
+					t.Errorf("Expected ports information in vdc %s of infrastructure %s", vdcID, inf.ID)
+				}
 			}
 		}
 	}
+}
+
+func checkAppendix(t *testing.T, appendix CookbookAppendix) {
+	checkDeployment(t, appendix.Deployment)
 }
 func TestReader(t *testing.T) {
 
