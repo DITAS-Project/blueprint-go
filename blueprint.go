@@ -24,6 +24,7 @@ import (
 
 // This is a VDC Blueprint which consists of five sections
 type Blueprint struct {
+	ID                 string                         `json:"_id"`
 	AbstractProperties []AbstractPropertiesMethodType `json:"ABSTRACT_PROPERTIES"`
 	CookbookAppendix   CookbookAppendix               `json:"COOKBOOK_APPENDIX"`  // CookbookAppendix is the definition of the Cookbook Appendix section in the blueprint
 	DataManagement     []DataManagement               `json:"DATA_MANAGEMENT"`    // list of methods
