@@ -24,8 +24,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ReadBlueprint(path string) (*BlueprintType, error) {
-	var blueprint BlueprintType
+func ReadBlueprint(path string) (*Blueprint, error) {
+	var blueprint Blueprint
 
 	raw, err := ioutil.ReadFile(path)
 	if err != nil {

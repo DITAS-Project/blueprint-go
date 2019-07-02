@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-func findAttribute(attr string, constraints []ConstraintType) bool {
+func findAttribute(attr string, constraints []DataUtility) bool {
 	for _, constraint := range constraints {
 		if *constraint.ID == attr {
 			return true
@@ -33,7 +33,7 @@ func findAttribute(attr string, constraints []ConstraintType) bool {
 	return false
 }
 
-func verifyTree(t *testing.T, tree TreeStructureType, constraints []ConstraintType) {
+func verifyTree(t *testing.T, tree TreeStructureType, constraints []DataUtility) {
 
 	if len(tree.Children) == 0 && len(tree.Leaves) == 0 {
 		t.Fatalf("Invalid tree without leaves or children")
@@ -56,20 +56,20 @@ func verifyTree(t *testing.T, tree TreeStructureType, constraints []ConstraintTy
 	}
 }
 
-func verifyConstraints(t *testing.T, property AbstractPropertiesMethodType, method DataManagementMethodType) {
+func verifyConstraints(t *testing.T, property AbstractPropertiesMethodType, method DataManagement) {
 	verifyTree(t, property.GoalTrees.DataUtility, method.Attributes.DataUtility)
 }
 
-func findMethod(methodId string, methods []DataManagementMethodType) *DataManagementMethodType {
+func findMethod(methodId string, methods []DataManagement) *DataManagement {
 	for _, method := range methods {
-		if *method.MethodId == methodId {
+		if method.MethodID == methodId {
 			return &method
 		}
 	}
 	return nil
 }
 
-func checkRules(t *testing.T, methods []DataManagementMethodType, abstractProperties []AbstractPropertiesMethodType) {
+func checkRules(t *testing.T, methods []DataManagement, abstractProperties []AbstractPropertiesMethodType) {
 	if len(abstractProperties) == 0 {
 		t.Fatalf("List of abstract properties is empty")
 	}
@@ -157,7 +157,7 @@ func checkAppendix(t *testing.T, appendix CookbookAppendix) {
 }
 func TestReader(t *testing.T) {
 
-	blueprint, err := ReadBlueprint("resources/concrete_blueprint_doctor.json")
+	blueprint, err := ReadBlueprint("resources/test_blueprint.json")
 
 	if err != nil {
 		t.Fatalf("could not read the test blueprint: %+v", err)

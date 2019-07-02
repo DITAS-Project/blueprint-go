@@ -5,30 +5,30 @@ import (
 	"strings"
 )
 
-func (o OverviewType) String() string {
-	return fmt.Sprintf("%s", *o.Name)
+func (o Overview) String() string {
+	return fmt.Sprintf("%s", o.Name)
 }
 
 func (t TreeStructureType) String() string {
 	return "-"
 }
 
-func (mm MetricPropertyType) String() string {
+func (mm Property) String() string {
 	var builder strings.Builder
 
 	if mm.Value != nil {
 
-		switch u := mm.Unit; {
+		switch u := *mm.Unit; {
 		case u == "tuple":
 			fallthrough
 		case u == "number":
-			builder.WriteString(fmt.Sprintf("v:%0.0f, u:%s,", *mm.Value, u))
+			builder.WriteString(fmt.Sprintf("v:%0.0f, u:%s,", *mm.Value.Double, u))
 		default:
-			builder.WriteString(fmt.Sprintf("b:%s, u:%s,", *mm.Value, u))
+			builder.WriteString(fmt.Sprintf("b:%s, u:%s,", *mm.Value.String, u))
 		}
 
 	} else {
-		builder.WriteString(fmt.Sprintf("u:%s,", mm.Unit))
+		builder.WriteString(fmt.Sprintf("u:%s,", *mm.Unit))
 	}
 
 	if mm.Maximum != nil {

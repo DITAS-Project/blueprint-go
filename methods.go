@@ -6,7 +6,7 @@ import (
 
 type ExtendedMethods struct {
 	Properties AbstractPropertiesMethodType
-	Method     DataManagementMethodType
+	Method     DataManagement
 	Path       string
 	HTTPMethod string
 	Tags       []string
@@ -19,7 +19,7 @@ type ExtendedOps struct {
 }
 
 // GetMethodMap returns a map with information about each operation of the blueprint indexed by operation id.
-func (b BlueprintType) GetMethodMap() map[string]ExtendedMethods {
+func (b Blueprint) GetMethodMap() map[string]ExtendedMethods {
 	//get all Swagger Operations form Blueprint
 	ops := AssembleOperationsMap(b)
 
@@ -57,7 +57,7 @@ func (b BlueprintType) GetMethodMap() map[string]ExtendedMethods {
 	return results
 }
 
-func AssembleOperationsMap(b BlueprintType) map[string]ExtendedOps {
+func AssembleOperationsMap(b Blueprint) map[string]ExtendedOps {
 	ops := make(map[string]ExtendedOps)
 
 	addToOps := func(method string, path string, ops *spec.Operation, data map[string]ExtendedOps) {
@@ -65,8 +65,8 @@ func AssembleOperationsMap(b BlueprintType) map[string]ExtendedOps {
 	}
 
 	//Thats some ugly code :P but thats what worked
-	if b.API.Paths != nil {
-		for k, v := range b.API.Paths.Paths {
+	if b.ExposedAPI.Paths != nil {
+		for k, v := range b.ExposedAPI.Paths.Paths {
 			if v.Get != nil {
 				addToOps("GET", k, v.Get, ops)
 			}
@@ -94,7 +94,7 @@ func AssembleOperationsMap(b BlueprintType) map[string]ExtendedOps {
 	return ops
 }
 
-func assemblePropertiesMap(b BlueprintType) map[string]AbstractPropertiesMethodType {
+func assemblePropertiesMap(b Blueprint) map[string]AbstractPropertiesMethodType {
 	properties := make(map[string]AbstractPropertiesMethodType)
 
 	for _, v := range b.AbstractProperties {
@@ -107,25 +107,25 @@ func assemblePropertiesMap(b BlueprintType) map[string]AbstractPropertiesMethodT
 	return properties
 }
 
-func assembleMethodMap(b BlueprintType) map[string]DataManagementMethodType {
-	methods := make(map[string]DataManagementMethodType)
+func assembleMethodMap(b Blueprint) map[string]DataManagement {
+	methods := make(map[string]DataManagement)
 
 	for _, v := range b.DataManagement {
-		if v.MethodId == nil {
+		if v.MethodID == "" {
 			continue
 		}
 
-		methods[*v.MethodId] = v
+		methods[v.MethodID] = v
 	}
 
 	return methods
 }
 
-func assembleTagMap(b BlueprintType) map[string][]string {
+func assembleTagMap(b Blueprint) map[string][]string {
 	tags := make(map[string][]string)
 
 	for _, t := range b.InternalStructure.Overview.Tags {
-		tags[t.ID] = t.Tags
+		tags[t.MethodID] = t.Tags
 	}
 
 	return tags

@@ -1,18 +1,20 @@
-/*
-Copyright 2017 Atos
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+/**
+ * Copyright 2018 Atos
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * This is being developed for the DITAS Project: https://www.ditas-project.eu/
+ */
 
 package blueprint
 
@@ -20,486 +22,206 @@ import (
 	"github.com/go-openapi/spec"
 )
 
-// ExtraPropertiesType represents extra properties to define for resources, infrastructures or deployments. This properties are provisioner or deployment specific and they should document them when they expect any.
-// swagger:model
-type ExtraPropertiesType map[string]string
-
-// Drive contains the information of a data drive
-// swagger:model
-type Drive struct {
-	// Name of the image to use. Most of the times, it will be available as /dev/disk/by-id/${name} value in the VM
-	// required: true
-	Name string `json:"name"`
-
-	// Type of the drive. It can be "SSD" or "HDD"
-	// required: true
-	// pattern: SSD|HDD
-	// example: SSD
-	Type string `json:"type"`
-
-	// Size of the disk in MB
-	// required: true
-	Size int64 `json:"size"`
+// This is a VDC Blueprint which consists of five sections
+type Blueprint struct {
+	AbstractProperties []AbstractPropertiesMethodType `json:"ABSTRACT_PROPERTIES"`
+	CookbookAppendix   CookbookAppendix               `json:"COOKBOOK_APPENDIX"`  // CookbookAppendix is the definition of the Cookbook Appendix section in the blueprint
+	DataManagement     []DataManagement               `json:"DATA_MANAGEMENT"`    // list of methods
+	ExposedAPI         spec.Swagger                   `json:"EXPOSED_API"`        // The CAF RESTful API of the VDC, written according to the current version (3.0.1) of the; OpenAPI Specification (OAS), but also adapted to DITAS requirements
+	InternalStructure  InternalStructure              `json:"INTERNAL_STRUCTURE"` // General information about the VDC Blueprint
+}
+type COOKBOOKAPPENDIXIdentityAccessManagement struct {
+	Mapping        []Mapping                `json:"mapping"`
+	ValidationKeys []map[string]interface{} `json:"validation_keys"`
 }
 
-// ResourceType represents a resource such as a virtual machine
-// swagger:model
-type ResourceType struct {
-	// Suffix for the hostname. The real hostname will be formed of the infrastructure name + resource name
-	Name string `json:"name"`
-
-	// Assigned hostname after deployment. It's only resolvable from nodes inside the same infrastructure.
-	Hostname string `json:"hostname"`
-
-	// Type of the VM to create
-	// example: n1-small
-	Type string `json:"type"`
-
-	// CPU speed in MHz. Ignored if type is provided
-	CPU int `json:"cpu"`
-
-	// Number of cores. Ignored if type is provided
-	Cores int `json:"cores"`
-
-	// RAM quantity in MB. Ignored if type is provided
-	RAM int64 `json:"ram"`
-
-	// Boot disk size in MB
-	Disk int64 `json:"disk"`
-
-	// Role that this VM plays. In case of a Kubernetes deployment at least one "master" is needed.
-	// required: true
-	// pattern: master|slave
-	// example: master
-	Role string `json:"role"`
-
-	// Boot image ID to use
-	// required: true
-	ImageId string `json:"image_id"`
-
-	// IP to assign this VM. In case it's not specified, the first available one will be used.
-	IP string `json:"ip,omitempty"`
-
-	// List of data drives to attach to this VM
-	Drives []Drive `json:"drives"`
-
-	//Extra properties to pass to the provider or the provisioner
-	ExtraProperties map[string]string `json:"extra_properties"`
+type Mapping struct {
+	MappingURL *string       `json:"mapping_url,omitempty"`
+	Provider   *string       `json:"provider,omitempty"`
+	RoleMap    *RoleMapUnion `json:"role_map"`
+	Roles      []string      `json:"roles"`
 }
 
-// CloudProviderInfo contains information about a cloud or edge provider
-// swagger:model
-type CloudProviderInfo struct {
-	// Endpoint to use for this infrastructure
-	APIEndpoint string `json:"api_endpoint"`
-
-	// Type of the infrastructure. i.e AWS, Cloudsigma, GCP or Edge
-	// example: AWS
-	APIType string `json:"api_type"`
+type RoleMapElement struct {
+	Matcher  *string  `json:"matcher,omitempty"`
+	Priority *float64 `json:"priority,omitempty"`
+	Roles    []string `json:"roles"`
 }
 
-// InfrastructureType represents a cloud or edge site that's able to create resources such as virtual machines or volumes
-// swagger:model
-type InfrastructureType struct {
-	// Unique name for the infrastructure
-	// required: true
-	// unique: true
-	Name string `json:"name"`
-
-	// Owner of the infrastructure
-	// pattern: DataOwner|DataConsumer|
-	Owner string `json:"owner"`
-
-	// Optional description for the infrastructure
-	Description string `json:"description"`
-
-	// Type of the infrastructure
-	// required: true
-	// pattern: Cloud|Edge
-	// example: Cloud
-	Type string `json:"type"`
-
-	// Provider information
-	// required: true
-	Provider CloudProviderInfo `json:"provider"`
-
-	// List of resources to deploy
-	// required: true
-	Resources []ResourceType `json:"resources"`
-
-	// List of tags to apply to this infrastructure
-	Tags []string `json:"tags"`
-
-	//Extra properties to pass to the provider or the provisioner
-	ExtraProperties map[string]string `json:"extra_properties"`
+type DataManagement struct {
+	Attributes Attributes `json:"attributes"` // goal trees
+	MethodID   string     `json:"method_id"`  // The id (operationId) of the method (as indicated in the EXPOSED_API.paths field)
 }
 
-// DriveInfo is the information of a drive that has been instantiated
-// swagger:model
-type DriveInfo struct {
-	// Name of the data drive
-	// unique:true
-	// required:true
-	Name string `json:"name"`
-	// Size of the disk in bytes
-	// required:true
-	Size int64 `json:"size"`
+// goal trees
+type Attributes struct {
+	DataUtility []DataUtility `json:"dataUtility"`
+	Privacy     []DataUtility `json:"privacy"`
+	Security    []DataUtility `json:"security"`
 }
 
-// NodeInfo is the information of a virtual machine that has been instantiated or a physical one that was pre-existing
-// swagger:model
-type NodeInfo struct {
-	// Hostname of the node.
-	// requiered:true
-	// unique:true
-	Hostname string `json:"hostname"`
-	// Role of the node. Master or slave in case of Kubernetes.
-	// example:master
-	Role string `json:"role"`
-	// CPU speed in Mhz.
-	CPU int `json:"cpu"`
-	// Number of cores.
-	Cores int `json:"cores"`
-	// RAM quantity in bytes.
-	RAM int64 `json:"ram"`
-	// IP assigned to this node.
-	// required:true
-	// unique:true
-	IP string `json:"ip"`
-	// Size of the boot disk in bytes
-	// required:true
-	// unique:true
-	DriveSize int64 `json:"drive_size" bson:"drive_size"`
-	// Data drives information
-	DataDrives []DriveInfo `json:"data_drives" bson:"data_drives"`
-	// Extra properties to pass to the provider or the provisioner
-	ExtraProperties ExtraPropertiesType `json:"extra_properties"`
+// definition of the metric
+type DataUtility struct {
+	ID         *string             `json:"id,omitempty"`         // id of the metric
+	Name       *string             `json:"name,omitempty"`       // name of the metric
+	Properties map[string]Property `json:"properties,omitempty"` // properties related to the metric
+	Type       *string             `json:"type,omitempty"`       // type of the metric
 }
 
-// VDCInfo contains information about related to a VDC running in a kubernetes cluster
-// swagger:model
-type VDCInfo struct {
-	Ports map[string]int
+// properties related to the metric
+type Property struct {
+	Maximum *float64 `json:"maximum,omitempty"` // lower limit of the offered property
+	Minimum *float64 `json:"minimum,omitempty"` // upper limit of the offered property
+	Unit    *string  `json:"unit,omitempty"`    // unit of measure of the property
+	Value   *Value   `json:"value"`             // value of the property
 }
 
-// InfrastructureDeploymentInfo contains information about a cluster of nodes that has been instantiated or were already existing.
-// swagger:model
-type InfrastructureDeploymentInfo struct {
-	// Unique infrastructure ID on the deployment
-	// required:true
-	// unique:true
-	ID string `json:"id"`
-	// Name of the infrastructure
-	Name string `json:"name"`
-	// Type of the infrastructure: cloud or edge
-	// pattern:cloud|edge
-	// required:true
-	Type string `json:"type"`
-	// Provider information
-	// required:true
-	Provider CloudProviderInfo `json:"provider"`
-	// Set of nodes in the infrastructure indexed by role
-	// required:true
-	Nodes map[string][]NodeInfo
-	// Status of the infrastructure
-	Status string `json:"status"`
-	// Configuration of VDCs running in the cluster, indexed by VDC identifier.
-	VDCs map[string]VDCInfo `json:"vdcs"`
-	// Set weather the VDM is running in this cluster or not
-	VDM bool
-	// Extra properties to pass to the provider or the provisioner
-	ExtraProperties ExtraPropertiesType `json:"extra_properties"`
+// General information about the VDC Blueprint
+type InternalStructure struct {
+	DALImages                map[string]DALImage                        `json:"DAL_Images,omitempty"` // Docker images that must be deployed in the DAL indexed by DAL name. It will be used to; compose the service name and the DNS entry that other images in the cluster can access to.
+	DataSources              []DataSource                               `json:"Data_Sources"`
+	Flow                     *Flow                                      `json:"Flow,omitempty"` // The data flow that implements the VDC
+	IdentityAccessManagement *INTERNALSTRUCTUREIdentityAccessManagement `json:"Identity_Access_Management,omitempty"`
+	MethodsInput             *MethodsInput                              `json:"Methods_Input,omitempty"` // This filed contains the part of the data source that each method needs to be executed
+	Overview                 Overview                                   `json:"Overview"`
+	TestingOutputData        []TestingOutputDatum                       `json:"Testing_Output_Data"`
+	VDCImages                map[string]Image                           `json:"VDC_Images,omitempty"`
 }
 
-// DeploymentInfo contains information of a deployment than may compromise several clusters
-// swagger:model
-type DeploymentInfo struct {
-	// Unique ID for the deployment
-	// required:true
-	// unique:true
-	ID string `json:"id" bson:"_id"`
-	// Name of the deployment
-	Name string `json:"name"`
-	// Lisf of infrastructures, each one representing a different cluster.
-	Infrastructures map[string]InfrastructureDeploymentInfo `json:"infrastructures"`
-	// Extra properties bound to the deployment
-	ExtraProperties ExtraPropertiesType `json:"extra_properties"`
-	// Global status of the deployment
-	Status string `json:"status"`
-}
-
-// CookbookAppendix is the definition of the Cookbook Appendix section in the blueprint
-// swagger:model
-type CookbookAppendix struct {
-	// Information about the clusters that were deployed with this blueprint
-	// required: true
-	// unique: true
-	Deployment DeploymentInfo `json:"Deployment"`
-}
-
-// LeafType is a leaf in a tree data structure
-// swagger:model
-type LeafType struct {
-	// Unique identifier for the leaf
-	// required: true
-	// unique: true
-	Id *string `json:"id"`
-
-	// An optional description for the leaf
-	// required: false
-	Description string `json:"description"`
-
-	// The weight in the resolution of the constraint
-	// requiered: true
-	Weight int `json:"weight"`
-
-	// The list of attributes defined in the data management section to match. All of them must comply.
-	// requiered: true
-	Attributes []string `json:"attributes"`
-}
-
-// TreeStructureType is a tree structure with a root and subtrees or leaves
-// swagger:model
-type TreeStructureType struct {
-
-	// The operation to apply to the subtree or leaves
-	// required: true
-	// pattern: AND|OR
-	// example: AND
-	Type *string `json:"type"`
-
-	// The subtrees pending from this node
-	// required: false
-	Children []TreeStructureType `json:"children"`
-
-	// The leaves pending from this node
-	// required: false
-	Leaves []LeafType `json:"leaves"`
-}
-
-// GoalTreeType defines a goal tree
-// swagger:model
-type GoalTreeType struct {
-
-	// Goal tree for data utility properties
-	// required: false
-	DataUtility TreeStructureType `json:"dataUtility"`
-
-	// Goal tree for security properties
-	// required: false
-	Security TreeStructureType `json:"security"`
-
-	// Goal tree for privacy properties
-	// required: false
-	Privacy TreeStructureType `json:"privacy"`
-}
-
-// AbstractPropertiesMethodType defines a goal tree for a method
-// swagger:model
-type AbstractPropertiesMethodType struct {
-
-	// The method identifier this goals apply to
-	// required: true
-	MethodId *string `json:"method_id"`
-
-	// The goal tree for this method
-	// required: true
-	GoalTrees GoalTreeType `json:"goalTrees"`
-}
-
-// MetricPropertyType is the definition of a constraint threshold.
-// Either maximum, minimum or value is required.
-// swagger:model
-type MetricPropertyType struct {
-	// The units in which this property is measured
-	// required: true
-	// example: MB/s
-	Unit string `json:"unit"`
-
-	// The minimum value for the threshold
-	// required: false
-	Minimum *float64 `json:"minimum"`
-
-	// The maximum value for the threshold
-	// required: false
-	Maximum *float64 `json:"maximum"`
-
-	// The value this property must maintain
-	// required: false
-	Value *interface{} `json:"value"`
-}
-
-// IsMinimumConstraint test if the MetricPropertyType has a minimum constraint
-func (m *MetricPropertyType) IsMinimumConstraint() bool {
-	return m.Minimum != nil
-}
-
-// IsMaximumConstraint test if the MetricPropertyType has a maximum constraint
-func (m *MetricPropertyType) IsMaximumConstraint() bool {
-	return m.Maximum != nil
-}
-
-// IsEqualityConstraint test if the MetricPropertyType has only a value and no min or max constraints
-func (m *MetricPropertyType) IsEqualityConstraint() bool {
-	return m.Value != nil && m.Maximum == nil && m.Minimum == nil
-}
-
-// ConstraintType is the definition of a QoS constraint
-// swagger:model
-type ConstraintType struct {
-
-	// A unique identifier for the constraint
-	// required: true
-	ID *string `json:"id"`
-
-	// An optional description for the constraint
-	// required: false
-	Description string `json:"description"`
-
-	// The type of the constraint
-	// required: true
-	// example: Accuracy
-	Type string `json:"type"`
-
-	// The set of properties thresholds associated to this constraints
-	// required: true
-	// example: "accuracy": { "minimum": 0.9, "unit": "none" }
-	Properties map[string]MetricPropertyType `json:"properties"`
-}
-
-// DataManagementAttributesType contains the data managements values associated to a method
-// swagger:model
-type DataManagementAttributesType struct {
-
-	// The constraints associated to data utility
-	// required: false
-	DataUtility []ConstraintType `json:"dataUtility"`
-
-	// The constraints associated to security
-	// required: false
-	Security []ConstraintType `json:"security"`
-
-	// The constraints associated to privacy
-	// requiered: false
-	Privacy []ConstraintType `json:"privacy"`
-}
-
-// DataManagementMethodType contains the data management attributes associated to a method
-// swagger:model
-type DataManagementMethodType struct {
-
-	// The unique method id this attributes apply to
-	// required: true
-	MethodId *string `json:"method_id"`
-
-	// The attributes to apply to this method
-	// required: true
-	Attributes DataManagementAttributesType `json:"attributes"`
-}
-
-// MethodTagType is a structure to define tags per methos
-// swagger:model
-type MethodTagType struct {
-
-	// The method identifier
-	// required: true
-	ID string `json:"method_id"`
-
-	// The list of tags to apply to the method
-	// required: false
-	Tags []string `json:"tags"`
-}
-
-// OverviewType are general descriptive properties of the blueprint
-// swagger:model
-type OverviewType struct {
-
-	// A unique name for the blueprint. It will be identified by this property.
-	// required: true
-	Name *string `json:"Name"`
-
-	// A list of tags to apply to this blueprint
-	// required: false
-	Tags []MethodTagType `json:"tags"`
-}
-
-// DataSourceType is a datasource definition
-// swagger:model
-type DataSourceType struct {
-
-	// The unique identifier of the datasource
-	// required: true
-	ID *string `json:"id"`
-
-	// The type of the datasource
-	// required: true
-	Type *string `json:"type"`
-
-	// A map of parameters relevant for the datasource
-	// required: false
-	Parameters map[string]interface{} `json:"parameters"`
+// Information about the DAL including its original location
+type DALImage struct {
+	Images     map[string]Image `json:"images,omitempty"` // Set of images to deploy indexed by the image identifier
+	OriginalIP string           `json:"original_ip"`      // IP of the original DAL's location
 }
 
 // ImageInfo is the information about an image that will be deployed by the deployment engine
-// swagger:model
-type ImageInfo struct {
-	// Port in which the docker image is listening internally. Two images inside the same ImageSet can't have the same internal port.
-	InternalPort int `json:"internal_port"`
-
-	// Port in which this image must be exposed. It must be unique across all images in all the ImageSets defined in this blueprint. Due to limitations in k8s, the port range must be bewteen 30000 and 32767
-	ExternalPort int `json:"external_port"`
-
-	// Image is the image name in the standard format [group]/<image_name>:[release]
-	// required: true
-	Image string `json:"image"`
-
-	// Environment is a map of environment variables whose key is the variable name and value is the variable value
-	Environment map[string]string `json:environment`
+type Image struct {
+	ExternalPort *int64 `json:"external_port,omitempty"` // Port in which this image must be exposed. It must be unique across all images in all the; ImageSets defined in this blueprint. Due to limitations in k8s, the port range must be; bewteen 30000 and 32767
+	Image        string `json:"image"`                   // Image is the image name in the standard format [group]/<image_name>:[release]
+	InternalPort *int64 `json:"internal_port,omitempty"` // Port in which the docker image is listening internally. Two images inside the same; ImageSet can't have the same internal port.
 }
 
-// ImageSet represents a set of docker images whose key is an identifier and value is a the docker image information such as image name and listening ports
-// swagger:model
-type ImageSet map[string]ImageInfo
-
-// InternalStructureType is the serialization of a DITAS concrete blueprint
-// swagger:model
-type InternalStructureType struct {
-
-	// The overview section
-	// required: true
-	Overview OverviewType `json:"Overview"`
-
-	// Docker images that must be deployed in the DAL indexed by DAL name. It will be used to compose the service name and the DNS entry that other images in the cluster can access to.
-	DALImages ImageSet `json:"DAL_Images"`
-
-	// Docker images that must be deployed in the VDC
-	VDCImages ImageSet `json:"VDC_Images"`
-
-	// The datasources description
-	// required: true
-	DataSources []DataSourceType `json:"Data_Sources"`
+type DataSource struct {
+	Class       *Class                 `json:"class,omitempty"`
+	Description *string                `json:"description,omitempty"`
+	ID          string                 `json:"id"` // A unique identifier
+	Location    *Location              `json:"location,omitempty"`
+	Parameters  map[string]interface{} `json:"parameters,omitempty"` // Connection parameters
+	Schema      map[string]interface{} `json:"schema,omitempty"`
+	Type        *Type                  `json:"type,omitempty"`
 }
 
-// BlueprintType is the serialization of a DITAS concrete blueprint
-// swagger:model
-type BlueprintType struct {
-	// The internal structure section
-	// required: true
-	InternalStructure InternalStructureType `json:"INTERNAL_STRUCTURE"`
+// The data flow that implements the VDC
+type Flow struct {
+	Parameters map[string]interface{} `json:"parameters,omitempty"`
+	Platform   *Platform              `json:"platform,omitempty"`
+	SourceCode interface{}            `json:"source_code"`
+}
 
-	// The data management section
-	// required: true
-	DataManagement []DataManagementMethodType `json:"DATA_MANAGEMENT"`
+type INTERNALSTRUCTUREIdentityAccessManagement struct {
+	IamEndpoint string            `json:"iam_endpoint"`
+	JwksURI     string            `json:"jwks_uri"`
+	Provider    []ProviderElement `json:"provider"`
+	Roles       []string          `json:"roles"`
+}
 
-	// The abstract properties section
-	// required: true
-	AbstractProperties []AbstractPropertiesMethodType `json:"ABSTRACT_PROPERTIES"`
+type ProviderElement struct {
+	LoginPortal *string `json:"loginPortal,omitempty"`
+	Name        string  `json:"name"`
+	Type        *string `json:"type,omitempty"`
+	URI         string  `json:"uri"`
+}
 
-	// The blueprint API description section
-	// required: true
-	API spec.Swagger `json:"EXPOSED_API"`
+// This filed contains the part of the data source that each method needs to be executed
+type MethodsInput struct {
+	Methods []Method `json:"Methods"` // The list of methods
+}
 
-	// The cookbook appendix section containing the available resources
-	// required: true
-	CookbookAppendix CookbookAppendix `json:"COOKBOOK_APPENDIX"`
+type Method struct {
+	DataSources []DataSourceElement `json:"dataSources"`         // The list of data sources required by the method
+	MethodID    *string             `json:"method_id,omitempty"` // The id (operationId) of the method (as indicated in the EXPOSED_API.paths field)
+}
+
+type DataSourceElement struct {
+	Database       []Database `json:"database"`                  // the list of databases required by a method in a data source
+	DataSourceID   *string    `json:"dataSource_id,omitempty"`   // The id of the data sources (as indicated in the Data_Sources field)
+	DataSourceType *string    `json:"dataSource_type,omitempty"` // The type of the data sources (relationa/not_relational/object)
+}
+
+type Database struct {
+	DatabaseID *string `json:"database_id,omitempty"` // The id of the database
+	Tables     []Table `json:"tables"`                // the list of tables/collections required by a method in a data source
+}
+
+type Table struct {
+	Columns []Column `json:"columns"`
+	TableID *string  `json:"table_id,omitempty"` // The id of the tables/collection
+}
+
+type Column struct {
+	ColumnID           *string `json:"column_id,omitempty"`          // The id of the column/field
+	ComputeDataUtility *bool   `json:"computeDataUtility,omitempty"` // True if it is required for data utility computation
+}
+
+type Overview struct {
+	Description string `json:"description"` // This field should contain a short description of the VDC Blueprint
+	Name        string `json:"name"`        // This field should contain the name of the VDC Blueprint
+	Tags        []Tag  `json:"tags"`        // Each element of this array should contain some keywords that describe the functionality; of each one exposed VDC method
+}
+
+type Tag struct {
+	MethodID string   `json:"method_id"` // The id (operationId) of the method (as indicated in the EXPOSED_API.paths field)
+	Tags     []string `json:"tags"`
+}
+
+type TestingOutputDatum struct {
+	MethodID string `json:"method_id"` // The id (operationId) of the method (as indicated in the EXPOSED_API.paths field)
+	ZipData  string `json:"zip_data"`  // The URI to the zip testing output data for each one exposed VDC method
+}
+
+type Class string
+
+const (
+	API                Class = "api"
+	DataStream         Class = "data stream"
+	ObjectStorage      Class = "object storage"
+	RelationalDatabase Class = "relational database"
+	TimeSeriesDatabase Class = "time-series database"
+)
+
+type Location string
+
+const (
+	Cloud Location = "cloud"
+	Edge  Location = "edge"
+)
+
+type Type string
+
+const (
+	InfluxDB Type = "InfluxDB"
+	Minio    Type = "Minio"
+	MySQL    Type = "MySQL"
+	Other    Type = "other"
+	REST     Type = "rest"
+)
+
+type Platform string
+
+const (
+	NodeRED Platform = "Node-RED"
+	Spark   Platform = "Spark"
+)
+
+type RoleMapUnion struct {
+	RoleMapElementArray []RoleMapElement
+	String              *string
+}
+
+// value of the property
+type Value struct {
+	AnythingArray []interface{}
+	Bool          *bool
+	Double        *float64
+	String        *string
 }

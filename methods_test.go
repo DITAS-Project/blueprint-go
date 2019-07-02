@@ -5,7 +5,7 @@ import (
 )
 
 func TestGetMethodMap(t *testing.T) {
-	blueprint, err := ReadBlueprint("resources/concrete_blueprint_doctor.json")
+	blueprint, err := ReadBlueprint("resources/test_blueprint.json")
 
 	if err != nil {
 		t.Fatalf("could not read the test blueprint: %+v", err)
