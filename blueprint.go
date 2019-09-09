@@ -89,17 +89,18 @@ type InternalStructure struct {
 	VDCImages                map[string]Image                           `json:"VDC_Images,omitempty"`
 }
 
-// Information about the DAL including its original location
+// DALImage about the DAL including its original location
 type DALImage struct {
 	Images     map[string]Image `json:"images,omitempty"` // Set of images to deploy indexed by the image identifier
 	OriginalIP string           `json:"original_ip"`      // IP of the original DAL's location
 }
 
-// ImageInfo is the information about an image that will be deployed by the deployment engine
+// Image is the information about an image that will be deployed by the deployment engine
 type Image struct {
-	ExternalPort *int64 `json:"external_port,omitempty"` // Port in which this image must be exposed. It must be unique across all images in all the; ImageSets defined in this blueprint. Due to limitations in k8s, the port range must be; bewteen 30000 and 32767
-	Image        string `json:"image"`                   // Image is the image name in the standard format [group]/<image_name>:[release]
-	InternalPort *int64 `json:"internal_port,omitempty"` // Port in which the docker image is listening internally. Two images inside the same; ImageSet can't have the same internal port.
+	ExternalPort *int64            `json:"external_port,omitempty"` // Port in which this image must be exposed. It must be unique across all images in all the; ImageSets defined in this blueprint. Due to limitations in k8s, the port range must be; bewteen 30000 and 32767
+	Image        string            `json:"image"`                   // Image is the image name in the standard format [group]/<image_name>:[release]
+	InternalPort *int64            `json:"internal_port,omitempty"` // Port in which the docker image is listening internally. Two images inside the same; ImageSet can't have the same internal port.
+	Environment  map[string]string `json:"environment,omitempty"`   // Environment is a set of environment variables to pass to this image. It can have some special variables if the value is in the form ${var}
 }
 
 type DataSource struct {
