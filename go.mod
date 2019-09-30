@@ -1,4 +1,4 @@
-module blueprint-go
+module github.com/DITAS-Project/blueprint-go
 
 go 1.13
 
