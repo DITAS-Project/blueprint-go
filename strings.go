@@ -22,9 +22,9 @@ func (mm Property) String() string {
 		case u == "tuple":
 			fallthrough
 		case u == "number":
-			builder.WriteString(fmt.Sprintf("v:%0.0f, u:%s,", *mm.Value.Double, u))
+			builder.WriteString(fmt.Sprintf("v:%0.0f, u:%s,", mm.Value, u))
 		default:
-			builder.WriteString(fmt.Sprintf("b:%s, u:%s,", *mm.Value.String, u))
+			builder.WriteString(fmt.Sprintf("b:%s, u:%s,", mm.Value, u))
 		}
 
 	} else {
