@@ -71,10 +71,10 @@ type DataUtility struct {
 
 // properties related to the metric
 type Property struct {
-	Maximum *float64 `json:"maximum,omitempty"` // lower limit of the offered property
-	Minimum *float64 `json:"minimum,omitempty"` // upper limit of the offered property
-	Unit    *string  `json:"unit,omitempty"`    // unit of measure of the property
-	Value   *Value   `json:"value"`             // value of the property
+	Maximum *float64     `json:"maximum,omitempty"` // lower limit of the offered property
+	Minimum *float64     `json:"minimum,omitempty"` // upper limit of the offered property
+	Unit    *string      `json:"unit,omitempty"`    // unit of measure of the property
+	Value   *interface{} `json:"value"`             // value of the property
 }
 
 // General information about the VDC Blueprint
