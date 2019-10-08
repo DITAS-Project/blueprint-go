@@ -91,8 +91,9 @@ type InternalStructure struct {
 
 // DALImage about the DAL including its original location
 type DALImage struct {
-	Images     map[string]Image `json:"images,omitempty"` // Set of images to deploy indexed by the image identifier
-	OriginalIP string           `json:"original_ip"`      // IP of the original DAL's location
+	Images             map[string]Image  `json:"images,omitempty"`     // Set of images to deploy indexed by the image identifier
+	OriginalIP         string            `json:"original_ip"`          // IP of the original DAL's location
+	ClusterOriginalIPs map[string]string `json:"cluster_original_ips"` // When each cluster needs a different IP for the original DAL, it can be specified here where the key is the cluster name (which has to be unique) and the value is the IP to use when deploy the VDC to that cluster
 }
 
 // Image is the information about an image that will be deployed by the deployment engine
